@@ -5,9 +5,10 @@ import (
 )
 
 type Configuration struct {
-	Pgdb     string // SERVER_PGDB
-	Port     string // SERVER_PORT
-	Endpoint string // SERVER_ENDPOINT
+	Pgdb       string // SERVER_PGDB
+	Port       string // SERVER_PORT
+	Endpoint   string // SERVER_ENDPOINT
+	Ppinterval int    // SERVER_PPINTERVAL
 }
 
 func main() {
