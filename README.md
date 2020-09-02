@@ -1,11 +1,11 @@
 # test-server
 
-The task have been described through the email
+The task has been described in the email
   
 # Steps to run
 
-## 1. prepare database
-run database inside docker conainer and apply there scripts from the folder **db/scripts**:
+## 1. prepare the database
+run the database inside a docker container and apply there the scripts from the folder **db/scripts**:
 ```
 docker run --name pgdbenlabs-test-task -e POSTGRES_USER=enlabs -e POSTGRES_PASSWORD=enlabs -p 54321:5432 -v $(pwd)/db/scripts/00_create_database.sql:/docker-entrypoint-initdb.d/init.sql -d postgres
 cat db/scripts/01_create_schema.sql | docker exec -i pgdbenlabs-test-task psql -U enlabs -d enlabs_test 
@@ -18,9 +18,9 @@ cat db/scripts/02_create_additional_trigger_check.sql | docker exec -i pgdbenlab
 ```
 CGO_ENABLED=0 go build -o ./dist/app ./cmd/server  
 ```
-*Note: **CGO_ENABLED=0** option required for run application inside Alpine Docker-image*
+*Note: **CGO_ENABLED=0** option is required to run the application inside Alpine Docker-image*
 
-## 3. run server inside docker container
+## 3. run the server inside a docker container
 ```
 docker image build -f Dockerfile -t test-server .
 docker run -p 8803:8803 \
@@ -37,7 +37,7 @@ test-server:latest
 ```
 # Additional info
 ## Configuration of the server
-Application configured through setting environment variables listed below:  
+Application is configured through setting environment variables listed below:  
   * SERVER_PORT - server's port. Example: 8803
   * SERVER_ENDPOINT - server's endpoint. Example: /endpoint
   * SERVER_PGDB - database connection URL. Example: postgres://enlabs:enlabs@localhost:5432/enlabs_test?sslmode=disable;
