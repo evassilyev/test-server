@@ -42,3 +42,15 @@ Application is configured through setting environment variables listed below:
   * SERVER_ENDPOINT - server's endpoint. Example: /endpoint
   * SERVER_PGDB - database connection URL. Example: postgres://enlabs:enlabs@localhost:5432/enlabs_test?sslmode=disable;
   * SERVER_PPINTERVAL - post processing start interval in minutes
+
+CURL command for test:
+```
+curl --location --request POST 'localhost:8803/endpoint' \
+--header 'Source-Type: server' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "state": "win",
+    "amount": 20.00,
+    "transactionId": "321110029000020017"
+}'
+```
