@@ -17,8 +17,6 @@ type DB struct {
 	sync.Mutex
 }
 
-// TODO add proper concurrency
-
 func NewDB(url string) *DB {
 	db := sqlx.MustOpen("postgres", url)
 	db.SetMaxIdleConns(2)
@@ -65,17 +63,30 @@ func (d *DB) PostProcess() {
 		odds []string
 		err  error
 	)
+	tx, err := d.Beginx()
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	defer func() {
 		if err != nil {
-			log.Println(err)
+			terr := tx.Rollback()
+			if terr != nil {
+				log.Println("SERIOUS DATABSE PROBLEM:" + terr.Error())
+			}
 			log.Println("Post processing failed")
+			log.Println(err)
 		} else {
+			terr := tx.Commit()
+			if terr != nil {
+				log.Println("SERIOUS DATABSE PROBLEM:" + terr.Error())
+			}
 			log.Println(fmt.Sprintf("%d records with transaction IDs (%s) cancelled", len(odds), strings.Join(odds, ",")))
 			log.Println("Post processing completed")
 		}
 	}()
 
-	err = d.Select(&tids,
+	err = tx.Select(&tids,
 		`select tid 
 				from balance_history 
 				where deleted = false 
@@ -91,5 +102,16 @@ func (d *DB) PostProcess() {
 	}
 
 	updq := fmt.Sprintf("update balance_history set deleted = true where tid in ('%s')", strings.Join(odds, "','"))
-	_, err = d.Exec(updq)
+	// TODO add post processing check for negative value
+	_, err = tx.Exec(updq)
+
+	var balance float64
+	err = d.Get(&balance, "select balance from calculated_balance_view")
+	if err != nil && err != sql.ErrNoRows {
+		return
+	}
+
+	if balance < 0 {
+		err = errors.New(fmt.Sprintf("attempt to set negative during post processing. Balance: %f ", balance))
+	}
 }

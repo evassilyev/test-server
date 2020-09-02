@@ -9,10 +9,11 @@ create unique index if not exists balance_tid_idx on balance_history (tid);
 
 drop view if exists calculated_balance_view;
 create view calculated_balance_view(balance) as
-    select nullif(0, sum(amnt)) as balance from
+    select coalesce(sum(amnt), 0) as balance from
         (select
                 (case operation
                     when 'win' then amount
                     when 'lost' then -amount
                 end) as amnt
         from balance_history where deleted = false) as amounts;
+
