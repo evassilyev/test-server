@@ -4,7 +4,7 @@ The task have been described through the email
   
 # Steps to run
 
-## Prepare database
+## 1. prepare database
 run database inside docker conainer and apply there scripts from the folder **db/scripts**:
 ```
 docker run --name pgdbenlabs-test-task -e POSTGRES_USER=enlabs -e POSTGRES_PASSWORD=enlabs -p 54321:5432 -v $(pwd)/db/scripts/00_create_database.sql:/docker-entrypoint-initdb.d/init.sql -d postgres
@@ -14,13 +14,13 @@ if you want to add the additional negative balance check on the database side ex
 ```
 cat db/scripts/02_create_additional_trigger_check.sql | docker exec -i pgdbenlabs-test-task psql -U enlabs -d enlabs_test
 ```
-## build the server
+## 2. build the server
 ```
 CGO_ENABLED=0 go build -o ./dist/app ./cmd/server  
 ```
 *Note: **CGO_ENABLED=0** option required for run application inside Alpine Docker-image*
 
-## run server inside docker container
+## 3. run server inside docker container
 ```
 docker image build -f Dockerfile -t test-server .
 docker run -p 8803:8803 \
@@ -31,7 +31,7 @@ docker run -p 8803:8803 \
 --net=host -d \
 test-server:latest
 ```
-# Or you can just run the bash script
+# Or just run the bash script!
 ```
 ./run_everything.sh
 ```
