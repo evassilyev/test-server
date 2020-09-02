@@ -21,7 +21,7 @@ docker run -p 8803:8803 \
 --env SERVER_PORT=8803 \
 --env SERVER_ENDPOINT=/endpoint \
 --env SERVER_PGDB=postgres://enlabs:enlabs@localhost:5432/enlabs_test?sslmode=disable \
---env SERVER_PPINTERVAL=2 \
+--env SERVER_PPINTERVAL=3 \
 --net=host -d \
 test-server:latest
 ```

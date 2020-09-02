@@ -34,7 +34,7 @@ func (d *DB) StoreData(data models.Data) (err error) {
 	d.Lock()
 	defer d.Unlock()
 
-	// Calculate account balance in SQL
+	// Calculate account balance in SQL view
 	err = d.Get(&balance, "select balance from calculated_balance_view")
 	if err != nil && err != sql.ErrNoRows {
 		return
@@ -72,14 +72,14 @@ func (d *DB) PostProcess() {
 		if err != nil {
 			terr := tx.Rollback()
 			if terr != nil {
-				log.Println("SERIOUS DATABSE PROBLEM:" + terr.Error())
+				log.Println("SERIOUS DATABASE PROBLEM:" + terr.Error())
 			}
 			log.Println("Post processing failed")
 			log.Println(err)
 		} else {
 			terr := tx.Commit()
 			if terr != nil {
-				log.Println("SERIOUS DATABSE PROBLEM:" + terr.Error())
+				log.Println("SERIOUS DATABASE PROBLEM:" + terr.Error())
 			}
 			log.Println(fmt.Sprintf("%d records with transaction IDs (%s) cancelled", len(odds), strings.Join(odds, ",")))
 			log.Println("Post processing completed")
@@ -90,7 +90,7 @@ func (d *DB) PostProcess() {
 		`select tid 
 				from balance_history 
 				where deleted = false 
-				order by date_time desc limit 19`)
+				order by date_time desc limit 19`) // 19 might be moved to the configuration
 	if err != nil {
 		return
 	}
@@ -102,11 +102,10 @@ func (d *DB) PostProcess() {
 	}
 
 	updq := fmt.Sprintf("update balance_history set deleted = true where tid in ('%s')", strings.Join(odds, "','"))
-	// TODO add post processing check for negative value
 	_, err = tx.Exec(updq)
 
 	var balance float64
-	err = d.Get(&balance, "select balance from calculated_balance_view")
+	err = tx.Get(&balance, "select balance from calculated_balance_view")
 	if err != nil && err != sql.ErrNoRows {
 		return
 	}
