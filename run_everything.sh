@@ -26,7 +26,7 @@ docker rm --force ${DBCONTAINER}
 docker run --name ${DBCONTAINER} -e POSTGRES_USER=enlabs -e POSTGRES_PASSWORD=enlabs -p ${DBPORT}:5432 -v \
 $(pwd)/db/scripts/00_create_database.sql:/docker-entrypoint-initdb.d/init.sql -d postgres
 
-echo "Waiting while database waked up..."
+echo "Waiting while database woke up..."
 sleep 5
 
 echo "Creating tables & views..."
