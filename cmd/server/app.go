@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -51,16 +50,16 @@ func (a *app) Run() error {
 func (a *app) processRequest(r *http.Request) (data models.Data, err error) {
 	source := r.Header.Get("Source-Type")
 	if _, ok := a.allowedSources[source]; !ok {
-		err = errors.New(fmt.Sprintf("source type %s is not allowed", source))
+		err = fmt.Errorf("source type %s is not allowed", source)
 		return
 	}
 	if r.Proto != "HTTP/1.1" {
-		err = errors.New(fmt.Sprintf("protocol %s is not allowed", r.Proto))
+		err = fmt.Errorf("protocol %s is not allowed", r.Proto)
 		return
 	}
 	ct := r.Header.Get("Content-Type")
 	if ct != "application/json" {
-		err = errors.New(fmt.Sprintf("wrong content type: %s", ct))
+		err = fmt.Errorf("wrong content type: %s", ct)
 		return
 	}
 
@@ -73,11 +72,11 @@ func (a *app) processRequest(r *http.Request) (data models.Data, err error) {
 
 	log.Println("Extracted data: ", data)
 	if data.State != "win" && data.State != "lost" {
-		err = errors.New(fmt.Sprintf("wrong operation: %s", data.State))
+		err = fmt.Errorf("wrong operation: %s", data.State)
 		return
 	}
 	if data.Amount < 0 {
-		err = errors.New(fmt.Sprintf("negative amount: %f", data.Amount))
+		err = fmt.Errorf("negative amount: %f", data.Amount)
 		return
 	}
 	return

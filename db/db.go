@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/evassilyev/test-server/models"
 	"github.com/jmoiron/sqlx"
@@ -41,14 +40,14 @@ func (d *DB) StoreData(data models.Data) (err error) {
 	}
 
 	if data.State == "lost" && balance-data.Amount < 0 {
-		err = errors.New(fmt.Sprintf("attempt to set negative balance: %f actual balance: %f", balance-data.Amount, balance))
+		err = fmt.Errorf("attempt to set negative balance: %f actual balance: %f", balance-data.Amount, balance)
 		return
 	}
 
 	_, err = d.NamedExec(`insert into balance_history(operation, amount, tid) values (:operation, :amount, :tid)`, data)
 	if err != nil {
 		if (err.(*pq.Error)).Code.Name() == "unique_violation" {
-			err = errors.New(fmt.Sprintf("transaction with id:%s has been processed already", data.TransactionId))
+			err = fmt.Errorf("transaction with id:%s has been processed already", data.TransactionId)
 		}
 	}
 	return
@@ -111,6 +110,6 @@ func (d *DB) PostProcess() {
 	}
 
 	if balance < 0 {
-		err = errors.New(fmt.Sprintf("attempt to set negative during post processing. Balance: %f ", balance))
+		err = fmt.Errorf("attempt to set negative during post processing. Balance: %f ", balance)
 	}
 }
