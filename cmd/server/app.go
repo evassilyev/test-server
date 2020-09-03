@@ -36,7 +36,7 @@ func (a *app) Run() error {
 	router.HandleFunc(a.conf.Endpoint, a.requestHandler).Methods(http.MethodPost)
 
 	go func() {
-		log.Println(fmt.Sprintf("Post processor started at %s with interval %d minutes", time.Now().Format(time.RFC822), a.conf.Ppinterval))
+		log.Printf("Post processor started at %s with interval %d minutes", time.Now().Format(time.RFC822), a.conf.Ppinterval)
 		for {
 			time.Sleep(time.Duration(a.conf.Ppinterval) * time.Minute)
 			a.db.PostProcess()

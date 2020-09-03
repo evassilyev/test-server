@@ -36,7 +36,7 @@ echo "Creating triggers..."
 cat db/scripts/02_create_additional_trigger_check.sql | docker exec -i ${DBCONTAINER} psql -U enlabs -d enlabs_test
 
 echo "Building the server..."
-CGO_ENABLED=0 go build -o ./dist/app ./cmd/server
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ./dist/app ./cmd/server
 
 echo "Building image..."
 docker image build -f Dockerfile -t ${SERVERIMAGE} .

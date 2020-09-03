@@ -58,9 +58,10 @@ func (d *DB) PostProcess() {
 	defer d.Unlock()
 	log.Println("Post processing started")
 	var (
-		tids []string
-		odds []string
-		err  error
+		tids      []string
+		err       error
+		cancelled []string
+		odds      []interface{}
 	)
 	tx, err := d.Beginx()
 	if err != nil {
@@ -80,7 +81,7 @@ func (d *DB) PostProcess() {
 			if terr != nil {
 				log.Println("SERIOUS DATABASE PROBLEM:" + terr.Error())
 			}
-			log.Println(fmt.Sprintf("%d records with transaction IDs (%s) cancelled", len(odds), strings.Join(odds, ",")))
+			log.Printf("%d records with transaction IDs (%s) cancelled", len(cancelled), strings.Join(cancelled, ","))
 			log.Println("Post processing completed")
 		}
 	}()
@@ -94,14 +95,20 @@ func (d *DB) PostProcess() {
 		return
 	}
 
+	var placeholders []string
+	n := 1
 	for i, v := range tids {
 		if i%2 == 0 {
 			odds = append(odds, v)
+			cancelled = append(cancelled, v)
+			// Prevention of SQL injections. Building string '$1,$2,$3,$4...'.
+			placeholders = append(placeholders, fmt.Sprintf("$%d", n))
+			n++
 		}
 	}
 
-	updq := fmt.Sprintf("update balance_history set deleted = true where tid in ('%s')", strings.Join(odds, "','"))
-	_, err = tx.Exec(updq)
+	updq := fmt.Sprintf("update balance_history set deleted = true where tid in (%s)", strings.Join(placeholders, ","))
+	_, err = tx.Exec(updq, odds...)
 
 	var balance float64
 	err = tx.Get(&balance, "select balance from calculated_balance_view")
