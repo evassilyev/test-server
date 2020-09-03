@@ -1,7 +1,7 @@
 create table if not exists balance_history (
     date_time timestamp not null default now(),
     operation char(4) not null,
-    amount float not null,
+    amount numeric not null,
     tid varchar not null unique,
     deleted bool not null default false
 );
