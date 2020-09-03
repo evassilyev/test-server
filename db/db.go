@@ -95,6 +95,11 @@ func (d *DB) PostProcess() {
 		return
 	}
 
+	if len(tids) == 0 {
+		log.Println("nothing to cancel")
+		return
+	}
+
 	var placeholders []string
 	n := 1
 	for i, v := range tids {

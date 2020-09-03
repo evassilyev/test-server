@@ -53,10 +53,6 @@ func (a *app) processRequest(r *http.Request) (data models.Data, err error) {
 		err = fmt.Errorf("source type %s is not allowed", source)
 		return
 	}
-	if r.Proto != "HTTP/1.1" {
-		err = fmt.Errorf("protocol %s is not allowed", r.Proto)
-		return
-	}
 	ct := r.Header.Get("Content-Type")
 	if ct != "application/json" {
 		err = fmt.Errorf("wrong content type: %s", ct)
@@ -94,4 +90,6 @@ func (a *app) requestHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	w.Write([]byte("OK\n"))
 }

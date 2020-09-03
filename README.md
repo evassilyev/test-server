@@ -40,10 +40,11 @@ test-server:latest
 Application is configured through setting environment variables listed below:  
   * SERVER_PORT - server's port. Example: 8803
   * SERVER_ENDPOINT - server's endpoint. Example: /endpoint
-  * SERVER_PGDB - database connection URL. Example: postgres://enlabs:enlabs@localhost:5432/enlabs_test?sslmode=disable;
+  * SERVER_PGDB - database connection URL. Example: postgres://enlabs:enlabs@localhost:54321/enlabs_test?sslmode=disable;
   * SERVER_PPINTERVAL - post processing start interval in minutes
 
-CURL command for test:
+## Test commands
+CURL command for tests:
 ```
 curl --location --request POST 'localhost:8803/endpoint' \
 --header 'Source-Type: server' \
@@ -53,4 +54,12 @@ curl --location --request POST 'localhost:8803/endpoint' \
     "amount": 20.00,
     "transactionId": "321110029000020017"
 }'
+```
+Command for check the actual balance:
+```
+psql postgres://enlabs:enlabs@localhost:54321/enlabs_test?sslmode=disable -c 'select balance from calculated_balance_view'
+```
+Command for check the request history:
+```
+psql postgres://enlabs:enlabs@localhost:54321/enlabs_test?sslmode=disable -c 'select * from balance_history order by date_time desc'
 ```
